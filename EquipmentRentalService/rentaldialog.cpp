@@ -14,7 +14,6 @@
 #include <QDebug>
 #include <QCalendarWidget>
 
-// Конструктор для новой заявки
 RentalDialog::RentalDialog(QWidget *parent, int clientId, int equipmentId)
     : QDialog(parent)
     , m_clientId(clientId)
@@ -40,7 +39,6 @@ RentalDialog::RentalDialog(QWidget *parent, int clientId, int equipmentId)
     loadEquipmentData();
     loadClientData();
 
-    // Устанавливаем даты по умолчанию
     QDate today = QDate::currentDate();
     m_startDateEdit->setDate(today);
     m_endDateEdit->setDate(today.addDays(1));
@@ -52,7 +50,7 @@ RentalDialog::RentalDialog(QWidget *parent, int clientId, int equipmentId)
 
 RentalDialog::~RentalDialog()
 {
-    // Автоматическое освобождение памяти через parent-child систему Qt
+
 }
 
 void RentalDialog::setupUI()
@@ -126,7 +124,6 @@ void RentalDialog::setupUI()
     m_endDateEdit = new QDateEdit();
     m_endDateEdit->setCalendarPopup(true);
     m_endDateEdit->setDisplayFormat("dd.MM.yyyy");
-    // m_endDateEdit->setMinimumDate(QDate::currentDate().addDays(1));
     m_endDateEdit->setMinimumDate(QDate::currentDate());
 
     m_daysSpinBox = new QSpinBox();
@@ -212,7 +209,6 @@ void RentalDialog::setupUI()
 
     mainLayout->addLayout(buttonLayout);
 
-    // Подключаем сигналы
     connect(m_startDateEdit, &QDateEdit::dateChanged, this, &RentalDialog::onDateChanged);
     connect(m_endDateEdit, &QDateEdit::dateChanged, this, &RentalDialog::onDateChanged);
     connect(m_daysSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
@@ -281,7 +277,6 @@ void RentalDialog::onDateChanged()
     QDate startDate = m_startDateEdit->date();
     QDate endDate = m_endDateEdit->date();
 
-    // Синхронизация дат и количества дней
     if (startDate > endDate) {
         if (sender() == m_startDateEdit) {
             endDate = startDate.addDays(m_daysSpinBox->value() - 1);
@@ -309,7 +304,6 @@ void RentalDialog::onDateChanged()
 
 void RentalDialog::calculatePrice()
 {
-    // Используем новую функцию для расчета со скидкой
     updateDiscountedPrice();
 
     // Обновляем отображение
@@ -343,11 +337,6 @@ void RentalDialog::calculatePrice()
 
 double RentalDialog::calculateDiscount(int days) const
 {
-    // Правила скидок:
-    // - от 7 до 13 дней: 10% скидка
-    // - от 14 до 20 дней: 15% скидка
-    // - от 21 дня и более: 18% скидка
-
     if (days >= 21) {
         return 18.0; // 18% скидка
     } else if (days >= 14) {
@@ -356,7 +345,7 @@ double RentalDialog::calculateDiscount(int days) const
         return 10.0; // 10% скидка
     }
 
-    return 0.0; // Нет скидки
+    return 0.0;
 }
 
 void RentalDialog::updateDiscountedPrice()
@@ -387,8 +376,6 @@ void RentalDialog::validateDates()
         return;
     }
 
-    // Проверяем доступность оборудования через класс Rental
-    // Для новой заявки передаем 0 как excludeRentalId
     if (Rental::isEquipmentAvailableForDates(m_equipmentId, m_startDate, m_endDate, 0)) {
         m_isAvailable = true;
         m_availabilityLabel->setText("Доступно для аренды");
@@ -471,11 +458,9 @@ void RentalDialog::showAvailabilityError()
 
 bool RentalDialog::saveRental()
 {
-    // Создаем объект Rental
     Rental* rental = new Rental();
     rental->setClientId(m_clientId);
 
-    // Получаем логин клиента
     User* client = User::getUserById(m_clientId);
     if (client) {
         rental->setClientLogin(client->getLogin());
@@ -502,7 +487,6 @@ bool RentalDialog::saveRental()
              << "Даты:" << m_startDate.toString("dd.MM.yyyy") << "-" << m_endDate.toString("dd.MM.yyyy")
              << "Сумма:" << m_totalPrice;
 
-    // Сохраняем в базу данных
     bool success = rental->insertIntoDatabase();
 
     if (success) {
@@ -545,7 +529,6 @@ void RentalDialog::onConfirmClicked()
         return;
     }
 
-    // Сохраняем заявку
     bool success = saveRental();
 
     if (success) {
@@ -567,7 +550,6 @@ void RentalDialog::onCancelClicked()
     reject();
 }
 
-// Статический метод для удобства
 bool RentalDialog::createNewRental(QWidget *parent, int clientId, int equipmentId)
 {
     RentalDialog dialog(parent, clientId, equipmentId);

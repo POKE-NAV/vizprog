@@ -31,7 +31,6 @@ bool Database::connectToDatabase()
         m_database.close();
     }
 
-    // Создаем новое подключение
     // Используем стандартное имя подключения
     m_database = QSqlDatabase::addDatabase("QSQLITE");
     m_database.setDatabaseName(dbPath);
@@ -63,13 +62,12 @@ bool Database::isConnected()
 
 bool Database::checkCredentials(const QString &username, const QString &password,
                                 QString &userFullName, QString &userRole, int &userId,
-                                QString &userPhone) // Добавили параметр для телефона
+                                QString &userPhone)
 {
     if (!isConnected()) {
         return false;
     }
 
-    // ДОБАВИЛИ phone в SELECT
     QSqlQuery query(m_database);
     query.prepare("SELECT id, password, role, full_name, phone FROM users WHERE login = ?");
     query.addBindValue(username);
@@ -82,14 +80,12 @@ bool Database::checkCredentials(const QString &username, const QString &password
         return false;
     }
 
-    // Получаем данные
     userId = query.value(0).toInt();
     QString storedHash = query.value(1).toString();
     userRole = query.value(2).toString();
     userFullName = query.value(3).toString();
     userPhone = query.value(4).toString(); // Получаем телефон
 
-    // Проверка пароля
     QString inputHash = Database::hashPassword(password);
 
     if (inputHash == storedHash) {
@@ -159,7 +155,6 @@ bool Database::registerUser(const QString &login,
     QVariant phoneVariant;
 
     if (!formattedPhone.isEmpty()) {
-        // Удаляем все нецифровые символы
         QString digitsOnly;
         for (const QChar &ch : formattedPhone) {
             if (ch.isDigit()) {
@@ -167,7 +162,7 @@ bool Database::registerUser(const QString &login,
             }
         }
 
-        // Проверяем длину (должно быть 11 цифр для российского номера)
+        // Проверяем длину
         if (digitsOnly.length() != 11) {
             return false;
         }
@@ -188,10 +183,10 @@ bool Database::registerUser(const QString &login,
 
         // Форматируем: +7 (XXX) XXX-XX-XX
         formattedPhone = QString("+7 (%1) %2-%3-%4")
-                             .arg(tenDigits.left(3))    // первые 3 цифры
-                             .arg(tenDigits.mid(3, 3))  // следующие 3
-                             .arg(tenDigits.mid(6, 2))  // следующие 2
-                             .arg(tenDigits.mid(8, 2)); // последние 2
+                             .arg(tenDigits.left(3))
+                             .arg(tenDigits.mid(3, 3))
+                             .arg(tenDigits.mid(6, 2))
+                             .arg(tenDigits.mid(8, 2));
 
         phoneVariant = formattedPhone;
     } else {

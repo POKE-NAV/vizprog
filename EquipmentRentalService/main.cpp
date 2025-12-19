@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
     do {
         restartNeeded = false;
 
-        // Показываем окно входа
         LoginDialog loginDialog;
 
         if (loginDialog.exec() == QDialog::Accepted) {
@@ -21,25 +20,21 @@ int main(int argc, char *argv[])
 
             if (user && user->isValid()) {
 
-                // Создаем главное окно
                 MainWindow *mainWindow = MainWindow::createWindow(user);
 
                 if(mainWindow)
                 {
-                    // ПОДКЛЮЧАЕМ СИГНАЛ перезапуска
                     QObject::connect(mainWindow, &MainWindow::restartApplication,
                                      [&app, &restartNeeded]() {
                                          restartNeeded = true;
-                                         app.quit(); // Завершаем текущий event loop
+                                         app.quit();
                                      });
 
                     mainWindow->show();
 
-                    // Запускаем event loop для этого окна
                     app.exec();
 
-                    // После закрытия MainWindow
-                    delete mainWindow; // Освобождаем память
+                    delete mainWindow;
                 }else {
                     QMessageBox::warning(nullptr, "Ошибка",
                                          "Не удалось создать главное окно");
@@ -47,7 +42,7 @@ int main(int argc, char *argv[])
             }
         }
 
-    } while (restartNeeded); // Повторяем, если нужен перезапуск
+    } while (restartNeeded);
 
     return 0;
 }

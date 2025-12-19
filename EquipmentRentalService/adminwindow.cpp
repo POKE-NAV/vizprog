@@ -29,7 +29,7 @@
 #include "QTextStream"
 
 AdminWindow::AdminWindow(User* user, QWidget* parent)
-    : MainWindow(user, parent)  // Вызов protected конструктора родителя
+    : MainWindow(user, parent)
 {
 
         setWindowTitle("Сервис аренды техники - " + m_user->getFullName());
@@ -48,11 +48,9 @@ void AdminWindow::setupUI()
     mainTabWidget = new QTabWidget(this);
     setCentralWidget(mainTabWidget);
 
-    // Создаем все вкладки
     createDashboardTab();
     createEquipmentTab();
     createRentalsTab();
-    // createReportsTab();
 }
 
 void AdminWindow::createDashboardTab()
@@ -60,16 +58,13 @@ void AdminWindow::createDashboardTab()
     dashboardTab = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout(dashboardTab);
 
-    // === ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ ===
     QGroupBox *userInfoGroup = new QGroupBox("Информация о пользователе");
     QHBoxLayout *userInfoLayout = new QHBoxLayout(userInfoGroup);
     userInfoGroup->setMaximumHeight(120); // Ограничиваем высоту
     userInfoGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    // Левая часть - информация
     QVBoxLayout *infoLayout = new QVBoxLayout();
 
-    // Формируем информацию о пользователе из объекта User
     QString userInfo = QString("👤 <b>%1</b><br>"
                                "📧 Логин: %2<br>"
                                "👑 Роль: %3<br>"
@@ -85,7 +80,6 @@ void AdminWindow::createDashboardTab()
     infoLayout->addWidget(userInfoLabel);
     infoLayout->addStretch();
 
-    // Правая часть - кнопка выхода
     QVBoxLayout *buttonLayout = new QVBoxLayout();
     buttonLayout->setAlignment(Qt::AlignTop);
 
@@ -107,21 +101,17 @@ void AdminWindow::createDashboardTab()
     buttonLayout->addWidget(logoutButton);
     buttonLayout->addStretch();
 
-    // Добавляем обе части в группу
     userInfoLayout->addLayout(infoLayout);
     userInfoLayout->addLayout(buttonLayout);
 
-    // === СТАТИСТИКА (для пользователя) ===
     QGroupBox *statsGroup = new QGroupBox("Статистика");
     QHBoxLayout *statsLayout = new QHBoxLayout(statsGroup);
 
-    // Используем функции из Rental для подсчета
     QList<Rental*> userRentals = Rental::findAllPendingRentals();
     activeRentalsCount = userRentals.size();
 
     activeRequestsLabel = new QLabel(QString("Заявки в обработке: %1").arg(activeRentalsCount));
 
-    // Устанавливаем стили для статистики
     QFont statsFont = activeRequestsLabel->font();
     statsFont.setPointSize(10);
     statsFont.setBold(true);
@@ -131,15 +121,11 @@ void AdminWindow::createDashboardTab()
     statsLayout->addWidget(activeRequestsLabel);
     statsLayout->addStretch();
 
-    // === ЗАЯВКИ В ОБРАБОТКЕ ===
     QGroupBox *processingRequestsGroup = new QGroupBox("Заявки в обработке");
     QVBoxLayout *requestsLayout = new QVBoxLayout(processingRequestsGroup);
 
     requestsTable = new QTableWidget();
-    // Устанавливаем 8 колонок для всех полей
     requestsTable->setColumnCount(7);
-
-    // Устанавливаем правильные заголовки для 8 колонок
     QStringList headers = {
         "ID",
         "Пользователь",
@@ -160,8 +146,8 @@ void AdminWindow::createDashboardTab()
     requestsTable->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Fixed); // Принять
     requestsTable->horizontalHeader()->setSectionResizeMode(6, QHeaderView::Fixed); // Отклонить
 
-    requestsTable->setColumnWidth(5, 100); // Ширина кнопки "Принять"
-    requestsTable->setColumnWidth(6, 100); // Ширина кнопки "Отклонить"
+    requestsTable->setColumnWidth(5, 100);
+    requestsTable->setColumnWidth(6, 100);
 
     // Настройка стиля таблицы
     requestsTable->setAlternatingRowColors(true);
@@ -169,30 +155,9 @@ void AdminWindow::createDashboardTab()
     requestsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     requestsTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    // Устанавливаем высоту строк
     requestsTable->verticalHeader()->setDefaultSectionSize(50);
 
     requestsLayout->addWidget(requestsTable);
-
-    // Кнопка обновления
-    // QPushButton *refreshButton = new QPushButton("🔄 Обновить список");
-    // refreshButton->setStyleSheet(
-    //     "QPushButton {"
-    //     "    background-color: #2196F3;"
-    //     "    color: white;"
-    //     "    padding: 8px 16px;"
-    //     "    border-radius: 4px;"
-    //     "    font-weight: bold;"
-    //     "}"
-    //     "QPushButton:hover {"
-    //     "    background-color: #1976D2;"
-    //     "}");
-    // connect(refreshButton, &QPushButton::clicked, this, &AdminWindow::refreshDashboard);
-
-    // QHBoxLayout *buttonRow = new QHBoxLayout();
-    // buttonRow->addStretch();
-    // buttonRow->addWidget(refreshButton);
-    // requestsLayout->addLayout(buttonRow);
 
     loadProcessingRequests();
 
@@ -200,14 +165,11 @@ void AdminWindow::createDashboardTab()
     mainLayout->addWidget(statsGroup);
     mainLayout->addWidget(processingRequestsGroup);
 
-    // Добавляем вкладку в TabWidget
     mainTabWidget->addTab(dashboardTab, "🏠 Главная");
 }
 
-// Метод для загрузки заявок в обработке
 void AdminWindow::loadProcessingRequests()
 {
-    // Очищаем таблицу
     requestsTable->setRowCount(0);
 
     QList<Rental*> userRentals = Rental::findAllPendingRentals();
@@ -293,7 +255,6 @@ void AdminWindow::loadProcessingRequests()
                 refreshDashboard();
             });
 
-            // Добавляем кнопки в таблицу
             QWidget *acceptWidget = new QWidget();
             QHBoxLayout *acceptLayout = new QHBoxLayout(acceptWidget);
             acceptLayout->setContentsMargins(2, 2, 2, 2);
@@ -313,22 +274,20 @@ void AdminWindow::loadProcessingRequests()
     }
 
 
-    // Если нет заявок в обработке
     if (row == 0) {
         requestsTable->setRowCount(1);
         QTableWidgetItem *noDataItem = new QTableWidgetItem("Нет заявок в обработке");
         noDataItem->setTextAlignment(Qt::AlignCenter);
         noDataItem->setForeground(Qt::gray);
         requestsTable->setItem(0, 0, noDataItem);
-        requestsTable->setSpan(0, 0, 1, 7); // Объединяем ячейки
+        requestsTable->setSpan(0, 0, 1, 7);
     }
-    // Автоматически подгоняем ширину колонок
+
     requestsTable->resizeColumnsToContents();
 }
 
 void AdminWindow::refreshDashboard()
 {
-    // Обновляем статистику
     QList<Rental*> userRentals = Rental::findAllPendingRentals();
     int pendingCount = userRentals.size();
     Rental::clearRentalList(userRentals);
@@ -347,7 +306,6 @@ void AdminWindow::createEquipmentTab()
     equipmentTab = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout(equipmentTab);
 
-    // Панель поиска и фильтров
     QHBoxLayout *filterLayout = new QHBoxLayout();
 
     searchEquipmentEdit = new QLineEdit();
@@ -361,7 +319,6 @@ void AdminWindow::createEquipmentTab()
     statusFilterCombo = new QComboBox();
     statusFilterCombo->addItems({"Все статусы", "Свободно", "Арендованно", "Обслуживается"});
 
-    // Кнопки действий
     QPushButton *addEquipmentBtn = new QPushButton(QIcon(":/icons/add.png"), "Добавить");
     addEquipmentBtn->setToolTip("Добавить новое оборудование");
 
@@ -406,7 +363,7 @@ void AdminWindow::createEquipmentTab()
     equipmentTable->setColumnWidth(5, 100); // Залог
     equipmentTable->setColumnWidth(6, 120); // Инв. номер
 
-    // Подключаем сигналы с ПРАВИЛЬНЫМИ названиями
+
     connect(searchEquipmentEdit, &QLineEdit::textChanged,
             this, &AdminWindow::onEquipmentSearchTextChanged);
     connect(statusFilterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -439,13 +396,11 @@ void AdminWindow::loadEquipmentData()
     typeFilterCombo->addItem("Все типы");
     typeFilterCombo->addItems(Equipment::getAllTypes());
 
-    // Восстанавливаем выбранный тип, если он есть
     int index = typeFilterCombo->findText(currentType);
     if (index >= 0) {
         typeFilterCombo->setCurrentIndex(index);
     }
 
-    // Применяем текущие фильтры
     applyEquipmentFilters();
 }
 
@@ -471,7 +426,6 @@ void AdminWindow::updateEquipmentTable(const QList<Equipment*>& equipmentList)
         // Статус
         QTableWidgetItem* statusItem = new QTableWidgetItem(equipment->getStatus());
 
-        // Раскрашиваем статусы
         if (equipment->isAvailable()) {
             statusItem->setBackground(QColor(220, 255, 220)); // Зеленый
         } else if (equipment->isRented()) {
@@ -539,15 +493,14 @@ void AdminWindow::onEditEquipmentClicked(int equipmentId)
     if (dialog.exec() == QDialog::Accepted) {
         Equipment updatedEquipment = dialog.getEquipment();
 
-        // Проверяем уникальность инвентарного номера (исключая текущее оборудование)
+        // Проверяем уникальность инвентарного номера
         if (!Equipment::validateInventoryNumber(updatedEquipment.getInventoryNumber(), equipmentId)) {
             QMessageBox::critical(this, "Ошибка",
                                   "Инвентарный номер уже существует. Пожалуйста, введите другой номер.");
         } else {
-            // Сохраняем изменения
             if (updatedEquipment.save()) {
                 QMessageBox::information(this, "Успех", "Изменения сохранены!");
-                loadEquipmentData(); // Перезагружаем список
+                loadEquipmentData();
             } else {
                 QMessageBox::critical(this, "Ошибка",
                                       "Не удалось сохранить изменения.");
@@ -574,7 +527,6 @@ void AdminWindow::applyEquipmentFilters()
     for (Equipment* equipment : m_allEquipment) {
         bool matches = true;
 
-        // Фильтр по поиску
         if (!searchText.isEmpty()) {
             QString name = equipment->getName().toLower();
             QString type = equipment->getType().toLower();
@@ -587,7 +539,6 @@ void AdminWindow::applyEquipmentFilters()
             }
         }
 
-        // Фильтр по статусу
         if (matches && statusFilter != "Все статусы") {
             QString status = equipment->getStatus();
             if (statusFilter == "Свободно" && !equipment->isAvailable()) matches = false;
@@ -595,7 +546,6 @@ void AdminWindow::applyEquipmentFilters()
             else if (statusFilter == "Обслуживается" && !equipment->isUnderMaintenance()) matches = false;
         }
 
-        // Фильтр по типу
         if (matches && typeFilter != "Все типы") {
             if (equipment->getType() != typeFilter) {
                 matches = false;
@@ -635,14 +585,12 @@ void AdminWindow::onAddNewEquipmentClicked()
     if (dialog.exec() == QDialog::Accepted) {
         Equipment equipment = dialog.getEquipment();
 
-        // Проверяем уникальность инвентарного номера
         if (!Equipment::validateInventoryNumber(equipment.getInventoryNumber())) {
             QMessageBox::critical(this, "Ошибка",
                                   "Инвентарный номер уже существует. Пожалуйста, введите другой номер.");
             return;
         }
 
-        // Сохраняем в БД
         if (equipment.save()) {
             QMessageBox::information(this, "Успех", "Оборудование успешно добавлено!");
             loadEquipmentData(); // Перезагружаем список
@@ -661,7 +609,6 @@ void AdminWindow::onDeleteEquipmentClicked(int equipmentId)
         return;
     }
 
-    // Проверяем, можно ли удалить
     if (equipment->isRented()) {
         QMessageBox::warning(this, "Ошибка",
                              "Нельзя удалить арендованное оборудование!");
@@ -680,7 +627,7 @@ void AdminWindow::onDeleteEquipmentClicked(int equipmentId)
     if (reply == QMessageBox::Yes) {
         if (equipment->remove()) {
             QMessageBox::information(this, "Успех", "Оборудование удалено!");
-            loadEquipmentData(); // Перезагружаем данные
+            loadEquipmentData();
         } else {
             QMessageBox::critical(this, "Ошибка", "Не удалось удалить оборудование!");
         }
@@ -694,16 +641,15 @@ void AdminWindow::createRentalsTab()
     rentalsTab = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout(rentalsTab);
 
-    // === ПАНЕЛЬ ФИЛЬТРАЦИИ И КНОПКА ОТЧЁТА ===
     QHBoxLayout *topPanelLayout = new QHBoxLayout();
 
     // Поиск по оборудованию/клиенту
-    searchRentalsEdit = new QLineEdit(); // Сделать членом класса!
+    searchRentalsEdit = new QLineEdit();
     searchRentalsEdit->setPlaceholderText("Поиск по оборудованию или клиенту...");
     searchRentalsEdit->setClearButtonEnabled(true);
 
     // Фильтр по статусу аренды
-    statusFilterCombo = new QComboBox(); // Сделать членом класса!
+    statusFilterCombo = new QComboBox();
     statusFilterCombo->addItem("Все статусы");
     statusFilterCombo->addItem(Rental::STATUS_ACTIVE);
     statusFilterCombo->addItem(Rental::STATUS_COMPLETED);
@@ -712,9 +658,7 @@ void AdminWindow::createRentalsTab()
 
     startDateEdit = new QDateEdit();
     startDateEdit->setCalendarPopup(true);
-    // startDateEdit->setDate(QDate::currentDate());
     startDateEdit->setDate(QDate(QDate::currentDate().year(), QDate::currentDate().month(), 1));
-    // startDateEdit->setMaximumDate(QDate::currentDate());
     startDateEdit->setSpecialValueText("С :");
 
     // Фильтр по дате окончания
@@ -722,21 +666,18 @@ void AdminWindow::createRentalsTab()
     endDateEdit->setCalendarPopup(true);
     endDateEdit->setDate(QDate(QDate::currentDate().year(), QDate::currentDate().month(),
                                QDate::currentDate().daysInMonth()));
-    // endDateEdit->setMinimumDate(QDate(2000, 1, 1));
     endDateEdit->setSpecialValueText("По :");
 
-    reportTypeCombo = new QComboBox(); // Член класса!
+    reportTypeCombo = new QComboBox();
     reportTypeCombo->addItem("Отчёт по доходам");
     reportTypeCombo->addItem("Отчёт по загруженности");
     reportTypeCombo->addItem("Отчёт по популярности");
     reportTypeCombo->addItem("Полный отчёт по арендам");
 
-    // Кнопка формирования отчёта (справа)
     QPushButton *generateReportBtn = new QPushButton("📊 Сформировать отчёт");
     generateReportBtn->setFixedWidth(180);
     connect(generateReportBtn, &QPushButton::clicked, this, &AdminWindow::onGenerateReportClicked);
 
-    // Добавляем элементы в панель
     topPanelLayout->addWidget(new QLabel("Поиск:"));
     topPanelLayout->addWidget(searchRentalsEdit, 2);
     topPanelLayout->addWidget(new QLabel("Статус:"));
@@ -749,12 +690,6 @@ void AdminWindow::createRentalsTab()
     topPanelLayout->addWidget(reportTypeCombo);
     topPanelLayout->addStretch();
     topPanelLayout->addWidget(generateReportBtn);
-
-    // === ОБЛАСТЬ ВЫВОДА ОТЧЁТА ===
-    // reportOutput = new QTextEdit();
-    // reportOutput->setReadOnly(true);
-    // reportOutput->setMaximumHeight(120);
-    // reportOutput->setVisible(false);
 
     activeRentalsTable = new QTableWidget();
     activeRentalsTable->setColumnCount(8);
@@ -789,7 +724,6 @@ void AdminWindow::createRentalsTab()
     activeRentalsTable->setColumnWidth(7, 120);
     activeRentalsTable->horizontalHeader()->setStretchLastSection(true);
 
-    // Подключаем сигналы фильтрации
     connect(searchRentalsEdit, &QLineEdit::textChanged,
             this, &AdminWindow::onRentalsSearchTextChanged);
     connect(statusFilterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -805,15 +739,12 @@ void AdminWindow::createRentalsTab()
     connect(m_reportManager, &ReportManager::reportGenerationFailed,
             this, &AdminWindow::onReportGenerationFailed);
 
-    // === ДОБАВЛЯЕМ ВСЕ ВИДЖЕТЫ ===
     mainLayout->addLayout(topPanelLayout);
-    // mainLayout->addWidget(reportOutput);
     mainLayout->addWidget(new QLabel("Все аренды:"));
     mainLayout->addWidget(activeRentalsTable, 1);
 
     mainTabWidget->addTab(rentalsTab, "📄 Аренды и отчёты");
 
-    // Загружаем данные
     loadRentalsData();
 }
 
@@ -855,8 +786,6 @@ void AdminWindow::onGenerateReportClicked()
         reportType = ReportManager::FullRentalReport;
     }
 
-    // Показываем прогресс
-    // QApplication::setOverrideCursor(Qt::WaitCursor);
     statusBar()->showMessage("Формирование отчёта...");
 
     // Генерируем отчёт
@@ -866,21 +795,18 @@ void AdminWindow::onGenerateReportClicked()
     statusBar()->clearMessage();
 
     if (!success) {
-        // Ошибка уже обработана в слоте onReportGenerationFailed
         return;
     }
 }
 
-// Добавить обработчики сигналов ReportManager:
 void AdminWindow::onReportGenerated(const QString &filePath)
 {
     // Показываем отчёт в текстовом поле
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        // Простой способ - читаем как UTF-8
+        // Читаем как UTF-8
         QByteArray data = file.readAll();
         QString content = QString::fromUtf8(data);
-        // reportOutput->setText(content);
         file.close();
     } else {
         QMessageBox::warning(this, "Ошибка",
@@ -888,9 +814,6 @@ void AdminWindow::onReportGenerated(const QString &filePath)
         return;
     }
 
-    // reportOutput->setVisible(true);
-
-    // Показываем сообщение об успехе
     QString message = QString("Отчёт успешно сохранён:\n%1")
                           .arg(QDir::toNativeSeparators(filePath));
 
@@ -933,10 +856,9 @@ void AdminWindow::loadRentalsData()
     clearRentalsTable();
     Rental::clearRentalList(m_allRentals);
 
-    // Загружаем все аренды пользователя (историю, исключая заявки в обработке)
+    // Загружаем все аренды пользователя
     m_allRentals = Rental::findAllRentals();
 
-    // Применяем текущие фильтры
     applyRentalsFilters();
 }
 
@@ -960,7 +882,6 @@ void AdminWindow::applyRentalsFilters()
     for (Rental* rental : m_allRentals) {
         if (!rental) continue;
 
-        // Фильтр по поиску
         if (!searchText.isEmpty()) {
             QString equipmentName = rental->getEquipmentName().toLower();
             QString clientName = rental->getClientLogin().toLower(); // Предполагаем наличие метода
@@ -969,7 +890,6 @@ void AdminWindow::applyRentalsFilters()
             }
         }
 
-        // Фильтр по статусу
         if (statusFilter != "Все статусы" && rental->getStatus() != statusFilter) {
             continue;
         }
@@ -980,7 +900,6 @@ void AdminWindow::applyRentalsFilters()
             }
         }
 
-        // Фильтр по дате окончания
         if (endDateFilter.isValid() && endDateFilter < QDate::currentDate().addYears(1)) {
             if (rental->getEndDate() > endDateFilter) {
                 continue;

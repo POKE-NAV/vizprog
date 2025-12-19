@@ -8,7 +8,6 @@
 #include <QMessageBox>
 #include <algorithm>
 
-// Вспомогательная функция для повторения строки
 static QString repeatString(const QString &str, int count) {
     QString result;
     for (int i = 0; i < count; ++i) {
@@ -530,10 +529,7 @@ bool ReportManager::saveReportToFile(const QString &content, const QString &file
 
     QTextStream out(&file);
 
-    // Более простой способ - использовать UTF-8 напрямую
-    out.setEncoding(QStringConverter::Utf8);  // Qt 6
-    // Или для кроссплатформенности:
-    // out.setEncoding(QStringConverter::Utf8);
+    out.setEncoding(QStringConverter::Utf8);
 
     out << content;
     file.close();
@@ -568,7 +564,6 @@ QString ReportManager::getGeneratedReportPath() const
     return m_lastFilePath;
 }
 
-// Статистические методы
 double ReportManager::calculateTotalIncome(const QList<Rental*> &rentals,
                                            const QDate &startDate,
                                            const QDate &endDate)

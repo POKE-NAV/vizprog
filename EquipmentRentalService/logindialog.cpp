@@ -214,7 +214,7 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 }
 LoginDialog::~LoginDialog()
 {
-    // delete m_user;
+
 }
 
 // ПЕРЕКЛЮЧЕНИЕ ФОРМ
@@ -259,7 +259,7 @@ bool LoginDialog::validateRegistrationForm()
         return false;
     }
 
-    // Проверка логина (только латинские буквы и цифры)
+    // Проверка логина =
     QRegularExpression loginRegex("^[a-zA-Z0-9_]+$");
     if (!loginRegex.match(login).hasMatch()) {
         QMessageBox::warning(this, "Ошибка",
@@ -285,7 +285,7 @@ bool LoginDialog::validateRegistrationForm()
         return false;
     }
 
-    // Проверка телефона (если заполнен)
+    // Проверка телефона
     if (!phone.isEmpty()) {
         QRegularExpression phoneRegex("^\\+7\\s?\\(?\\d{3}\\)?\\s?\\d{3}[\\s-]?\\d{2}[\\s-]?\\d{2}$");
         if (!phoneRegex.match(phone).hasMatch()) {
@@ -299,7 +299,6 @@ bool LoginDialog::validateRegistrationForm()
     return true;
 }
 
-// ==================== ОБРАБОТКА РЕГИСТРАЦИИ ====================
 void LoginDialog::onRegistrationClicked()
 {
     if (!Database::connectToDatabase()) {

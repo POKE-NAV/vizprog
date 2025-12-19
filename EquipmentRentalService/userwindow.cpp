@@ -57,16 +57,13 @@ void UserWindow::createDashboardTab()
     dashboardTab = new QWidget();
     QVBoxLayout *mainLayout = new QVBoxLayout(dashboardTab);
 
-    // === ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ ===
     QGroupBox *userInfoGroup = new QGroupBox("Информация о пользователе");
     QHBoxLayout *userInfoLayout = new QHBoxLayout(userInfoGroup);
     userInfoGroup->setMaximumHeight(120);
     userInfoGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    // Левая часть - информация
     QVBoxLayout *infoLayout = new QVBoxLayout();
 
-    // Формируем информацию о пользователе из объекта User
     QString userInfo = QString("👤 <b>%1</b><br>"
                                "📧 Логин: %2<br>"
                                "👑 Роль: %3<br>"
@@ -82,7 +79,6 @@ void UserWindow::createDashboardTab()
     infoLayout->addWidget(userInfoLabel);
     infoLayout->addStretch();
 
-    // Правая часть - кнопка выхода
     QVBoxLayout *buttonLayout = new QVBoxLayout();
     buttonLayout->setAlignment(Qt::AlignTop);
 
@@ -104,24 +100,19 @@ void UserWindow::createDashboardTab()
     buttonLayout->addWidget(logoutButton);
     buttonLayout->addStretch();
 
-    // Добавляем обе части в группу
     userInfoLayout->addLayout(infoLayout);
     userInfoLayout->addLayout(buttonLayout);
 
-    // === СТАТИСТИКА (для пользователя) ===
     QGroupBox *statsGroup = new QGroupBox("Статистика");
     QHBoxLayout *statsLayout = new QHBoxLayout(statsGroup);
 
-    // Используем функции из Rental для подсчета
-    // Получаем все аренды текущего пользователя
     QList<Rental*> userRentals = Rental::findMyPendingRentals(m_user->getId());
 
-    // Подсчитываем статистику
+
     activeRentalsCount = Rental::filterReservedRentals(userRentals).size();
 
     activeRequestsLabel = new QLabel(QString("Заявки: %1").arg(activeRentalsCount));
 
-    // Устанавливаем стили для статистики
     QFont statsFont = activeRequestsLabel->font();
     statsFont.setPointSize(10);
     statsFont.setBold(true);
@@ -133,7 +124,6 @@ void UserWindow::createDashboardTab()
 
     statsLayout->addWidget(activeRequestsLabel);
 
-    // === ЗАЯВКИ В ОБРАБОТКЕ ===
     QGroupBox *processingRequestsGroup = new QGroupBox("Заявки в обработке");
     QVBoxLayout *requestsLayout = new QVBoxLayout(processingRequestsGroup);
 
@@ -147,27 +137,21 @@ void UserWindow::createDashboardTab()
     requestsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     requestsTable->setEditTriggers(QAbstractItemView::NoEditTriggers); // Только чтение
 
-    // Загружаем данные из БД для текущего пользователя со статусом "В обработке"
     loadProcessingRequests();
 
     requestsLayout->addWidget(requestsTable);
 
-    // === СБОРКА ВСЕХ КОМПОНЕНТОВ ===
     mainLayout->addWidget(userInfoGroup);
     mainLayout->addWidget(statsGroup);
     mainLayout->addWidget(processingRequestsGroup);
 
-    // Добавляем вкладку в TabWidget
     mainTabWidget->addTab(dashboardTab, "🏠 Главная");
 }
 
-// Метод для загрузки заявок в обработке
 void UserWindow::loadProcessingRequests()
 {
-    // Очищаем таблицу
     requestsTable->setRowCount(0);
 
-    // Получаем аренды текущего пользователя
     QList<Rental*> userRentals = Rental::findMyPendingRentals(m_user->getId());
 
     int row = 0;
@@ -209,17 +193,16 @@ void UserWindow::loadProcessingRequests()
         }
     }
 
-    // Автоматически подгоняем ширину колонок
+
     requestsTable->resizeColumnsToContents();
 
-    // Если нет заявок в обработке
     if (row == 0) {
         requestsTable->setRowCount(1);
         QTableWidgetItem *noDataItem = new QTableWidgetItem("Нет заявок в обработке");
         noDataItem->setTextAlignment(Qt::AlignCenter);
         noDataItem->setForeground(Qt::gray);
         requestsTable->setItem(0, 0, noDataItem);
-        requestsTable->setSpan(0, 0, 1, 5); // Объединяем ячейки
+        requestsTable->setSpan(0, 0, 1, 5);
     }
 }
 
@@ -283,7 +266,6 @@ void UserWindow::createEquipmentTab()
     equipmentTable->setColumnWidth(5, 100); // Залог
     equipmentTable->setColumnWidth(6, 120); // Инв. номер
 
-    // Подключаем сигналы с ПРАВИЛЬНЫМИ названиями
     connect(searchEquipmentEdit, &QLineEdit::textChanged,
             this, &UserWindow::onEquipmentSearchTextChanged);
     connect(statusFilterCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -470,7 +452,7 @@ void UserWindow::updateEquipmentTable(const QList<Equipment*>& equipmentList)
                                                 "}"
                                                 ).arg(textColor).arg(backgroundColor));
 
-            // Кнопка "Забронировать" (всегда показываем, даже если оборудование недоступно)
+            // Кнопка "Забронировать"
             QPushButton* reserveBtn = new QPushButton("Забронировать");
             reserveBtn->setToolTip("Забронировать на будущее");
             reserveBtn->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -502,12 +484,10 @@ void UserWindow::updateEquipmentTable(const QList<Equipment*>& equipmentList)
         equipmentTable->setCellWidget(i, 7, actionsWidget);
     }
 
-    // Автоматически подгоняем высоту строк
     equipmentTable->resizeRowsToContents();
 
-    // Устанавливаем минимальную высоту строк для кнопок
     for (int i = 0; i < equipmentTable->rowCount(); ++i) {
-        equipmentTable->setRowHeight(i, BUTTON_HEIGHT + 8); // +8 для отступов
+        equipmentTable->setRowHeight(i, BUTTON_HEIGHT + 8);
     }
 }
 
@@ -569,7 +549,6 @@ void UserWindow::onEditEquipmentClicked(int equipmentId)
     if (dialog.exec() == QDialog::Accepted) {
         Equipment updatedEquipment = dialog.getEquipment();
 
-        // Проверяем уникальность инвентарного номера (исключая текущее оборудование)
         if (!Equipment::validateInventoryNumber(updatedEquipment.getInventoryNumber(), equipmentId)) {
             QMessageBox::critical(this, "Ошибка",
                                   "Инвентарный номер уже существует. Пожалуйста, введите другой номер.");
@@ -889,7 +868,6 @@ void UserWindow::updateRentalsTable(const QList<Rental*>& rentalsList)
         rentalsTable->setItem(i, 6, statusItem);
     }
 
-    // Автоматически подгоняем высоту строк
     rentalsTable->resizeRowsToContents();
 }
 
@@ -904,7 +882,6 @@ void UserWindow::clearRentalsTable()
     rentalsTable->setRowCount(0);
 }
 
-// Слоты для фильтров
 void UserWindow::onRentalsSearchTextChanged(const QString& text)
 {
     Q_UNUSED(text);

@@ -20,25 +20,7 @@
 MainWindow::MainWindow(User* user, QWidget *parent)
     : QMainWindow(parent), m_user(user)
 {
-    // // Проверяем объект User
-    // if (m_user && m_user->isValid()) {
 
-    //     // Устанавливаем заголовок окна через User
-    //     setWindowTitle("Сервис аренды техники - " + m_user->getFullName());
-    //     setMinimumSize(1000, 700);
-
-    //     // Настраиваем интерфейс через User
-    //     if (m_user->isAdmin()) {
-    //         setupAdminUI();
-    //     } else {
-    //         setupClientUI();
-    //     }
-
-    //     updateDashboardStats();
-    // } else {
-    //     QMessageBox::critical(this, "Ошибка", "Передан невалидный объект User");
-    //     close();
-    // }
 }
 
 MainWindow* MainWindow::createWindow(User* user, QWidget* parent)
@@ -47,7 +29,7 @@ MainWindow* MainWindow::createWindow(User* user, QWidget* parent)
     if (!user || !user->isValid()) {
         QMessageBox::critical(nullptr, "Ошибка входа",
                               "Не удалось войти в систему. Пользователь не валиден.");
-        return nullptr;  // Возвращаем nullptr вместо окна
+        return nullptr;
     }
 
     if (user->isAdmin()) {

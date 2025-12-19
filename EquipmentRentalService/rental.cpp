@@ -234,7 +234,7 @@ bool Rental::isEquipmentAvailableForDates(int equipmentId, const QDate& startDat
 
     if (query.next()) {
         int conflictCount = query.value(0).toInt();
-        return conflictCount == 0; // Нет конфликтов = доступно
+        return conflictCount == 0;
     }
 
     return false;
@@ -290,7 +290,6 @@ bool Rental::insertIntoDatabase()
     }
 
     if (!isEquipmentAvailableForDates(m_equipmentId, m_startDate, m_endDate, 0)) {
-        //qDebug() << "Оборудование недоступно в указанные даты";
         return false;
     }
 
@@ -321,12 +320,8 @@ bool Rental::insertIntoDatabase()
         return false;
     }
 
-    // Получаем сгенерированный ID
     m_id = query.lastInsertId().toInt();
     qDebug() << "Заявка создана успешно, ID:" << m_id;
-
-    // Обновляем статус оборудования на "арендовано" или "зарезервировано"
-    // Equipment::updateStatus(Equipment::STATUS_RENTED);
 
     return true;
 }
@@ -445,9 +440,7 @@ QList<Rental*> Rental::filterByStatus(const QList<Rental*>& rentals, const QStri
     }
 
     for (Rental* rental : rentals) {
-        // if (rental && rental->getStatus() == status) {
             filtered.append(rental);
-        // }
     }
 
     qDebug() << "Отфильтровано по статусу" << status << ":"

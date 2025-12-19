@@ -4,13 +4,11 @@
 #include <QSqlError>
 #include <QDebug>
 
-// Инициализация статических констант
 const QString Equipment::STATUS_AVAILABLE = "Свободно";
 const QString Equipment::STATUS_RENTED = "Арендованно";
 const QString Equipment::STATUS_MAINTENANCE = "Обслуживается";
 const QString Equipment::STATUS_BOOKED = "Забронировано";
 
-// Конструкторы
 Equipment::Equipment()
     : m_id(0)
     , m_pricePerDay(0.0)
@@ -34,7 +32,6 @@ Equipment::Equipment(int id, const QString& name, const QString& type,
 {
 }
 
-// Форматированные значения (для отображения в UI)
 QString Equipment::getFormattedPrice() const
 {
     return QString("%1 руб./день").arg(m_pricePerDay, 0, 'f', 2);
@@ -50,7 +47,6 @@ QString Equipment::getFormattedCreatedDate() const
     return m_createdDate.toString("dd.MM.yyyy");
 }
 
-// Сеттеры
 void Equipment::setName(const QString& name)
 {
     if (!name.trimmed().isEmpty()) {
@@ -91,7 +87,6 @@ void Equipment::setDeposit(double deposit)
     }
 }
 
-// Бизнес-методы
 bool Equipment::isAvailable() const
 {
     return m_status == STATUS_AVAILABLE;
@@ -128,7 +123,6 @@ bool Equipment::canBeRented() const
     return isAvailable() && m_pricePerDay > 0;
 }
 
-// Проверка уникальности инвентарного номера
 bool Equipment::isInventoryNumberUnique() const
 {
     if (!Database::isConnected() || m_inventoryNumber.isEmpty()) {
@@ -147,7 +141,6 @@ bool Equipment::isInventoryNumberUnique() const
     return query.value(0).toInt() == 0;
 }
 
-// Работа с БД
 bool Equipment::insertIntoDatabase()
 {
     if (!Database::isConnected()) {
@@ -181,7 +174,6 @@ bool Equipment::insertIntoDatabase()
         return false;
     }
 
-    // Получаем сгенерированный ID
     m_id = query.lastInsertId().toInt();
     return true;
 }
@@ -279,7 +271,6 @@ bool Equipment::updateStatus(const QString& newStatus)
     return true;
 }
 
-// Статические методы
 Equipment* Equipment::findById(int id)
 {
     if (!Database::isConnected()) {
@@ -467,7 +458,6 @@ QList<QString> Equipment::getAllTypes()
     return types;
 }
 
-// Статистика
 int Equipment::getTotalCount()
 {
     if (!Database::isConnected()) {
@@ -534,7 +524,6 @@ int Equipment::getUnderMaintenanceCount()
     return 0;
 }
 
-// Валидация
 bool Equipment::validateStatus(const QString& status)
 {
     return status == STATUS_AVAILABLE ||
@@ -560,7 +549,7 @@ bool Equipment::validateInventoryNumber(const QString& number, int excludeId)
     }
 
     if (!Database::isConnected()) {
-        return true; // Не можем проверить, но формально валидно
+        return true;
     }
 
     QSqlQuery query;
@@ -580,7 +569,6 @@ bool Equipment::validateInventoryNumber(const QString& number, int excludeId)
     return query.value(0).toInt() == 0;
 }
 
-// Утилита для очистки памяти
 void Equipment::clearEquipmentList(QList<Equipment*>& list)
 {
     qDeleteAll(list);
